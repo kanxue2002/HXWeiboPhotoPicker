@@ -79,6 +79,47 @@
     }];
 }
 
++ (void)fetchImageDataForSelectedPhoto:(NSArray<HXPhotoModel *> *)photos completion:(void (^)(NSArray<NSData *> *))completion
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __block NSMutableArray *imageDatas = [NSMutableArray array];
+        __weak typeof(self) weakSelf= self;
+        [photos.copy enumerateObjectsUsingBlock:^(HXPhotoModel * _Nonnull model, NSUInteger idx, BOOL * _Nonnull stop) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            model.fetchImageDataIndex = idx;
+            if (model.type == HXPhotoModelMediaTypeCameraPhoto) {
+                NSData *imageData;
+                if (UIImagePNGRepresentation(model.thumbPhoto)) {
+                    //返回为png图像。
+                    imageData = UIImagePNGRepresentation(model.thumbPhoto);
+                }else {
+                    //返回为JPEG图像。
+                    imageData = UIImageJPEGRepresentation(model.thumbPhoto, 1.0);
+                }
+                model.imageData = imageData;
+                [strongSelf sortDataForModel:model total:photos.count images:imageDatas completion:^(NSArray *array) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (completion) {
+                            completion(array);
+                        }
+                    });
+                }];
+            }else {
+                [strongSelf FetchPhotoDataForPHAsset:model.asset completion:^(NSData *imageData, NSDictionary *info) {
+                    model.imageData = imageData;
+                    [strongSelf sortDataForModel:model total:photos.count images:imageDatas completion:^(NSArray *array) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if (completion) {
+                                completion(array);
+                            }
+                        });
+                    }];
+                }];
+            }
+        }];
+    });
+}
+
 + (int32_t)fetchPhotoWithAsset:(id)asset photoSize:(CGSize)photoSize completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion {
     PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
     option.resizeMode = PHImageRequestOptionsResizeModeFast; 
@@ -362,4 +403,36 @@
         }
     }
 }
+
++ (void)sortDataForModel:(HXPhotoModel *)model total:(NSInteger)total images:(NSMutableArray *)images completion:(void(^)(NSArray *array))completion
+{
+    [images addObject:model];
+    if (images.count == total) {
+        [images sortUsingComparator:^NSComparisonResult(HXPhotoModel *temp, HXPhotoModel *other) {
+            NSInteger length1 = temp.fetchImageDataIndex;
+            NSInteger length2 = other.fetchImageDataIndex;
+            
+            NSNumber *number1 = [NSNumber numberWithInteger:length1];
+            NSNumber *number2 = [NSNumber numberWithInteger:length2];
+            
+            NSComparisonResult result = [number1 compare:number2];
+            return result == NSOrderedDescending;
+        }];
+        NSMutableArray *array = [NSMutableArray array];
+        for (HXPhotoModel *md in images) {
+            if (!md.imageData) {
+                continue;
+            }
+            [array addObject:md.imageData.copy];
+            md.imageData = nil;
+            md.previewPhoto = nil;
+        }
+        [images removeAllObjects];
+        images = nil;
+        if (completion) {
+            completion(array);
+        }
+    }
+}
+
 @end

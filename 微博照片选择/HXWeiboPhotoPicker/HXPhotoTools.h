@@ -50,6 +50,13 @@ typedef enum : NSUInteger {
 + (NSString *)transFormPhotoTitle:(NSString *)englishName;
 
 /**
+ 根据已选照片数组返回imageData数组
+ 
+ @param photos 选中照片数组
+ */
++ (void)fetchImageDataForSelectedPhoto:(NSArray<HXPhotoModel *> *)photos completion:(void(^)(NSArray<NSData *> *imageDatas))completion;
+
+/**
  根据PHAsset对象获取照片信息
  */
 + (int32_t)fetchPhotoWithAsset:(id)asset photoSize:(CGSize)photoSize completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion;
