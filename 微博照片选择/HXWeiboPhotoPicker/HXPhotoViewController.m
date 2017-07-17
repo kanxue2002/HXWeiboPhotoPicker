@@ -228,7 +228,7 @@ static NSString *PhotoViewCellId = @"PhotoViewCellId";
         }
         self.albumsBgView.hidden = NO;
         [UIView animateWithDuration:0.2 animations:^{
-            self.albumView.frame = CGRectMake(0, 64, self.view.frame.size.width, 340);
+            self.albumView.frame = CGRectMake(0, 0, self.view.frame.size.width, 340);
             self.albumView.tableView.frame = CGRectMake(0, 15, self.view.frame.size.width, 340);
             button.imageView.transform = CGAffineTransformMakeRotation(M_PI);
         } completion:^(BOOL finished) {
@@ -350,7 +350,7 @@ static NSString *PhotoViewCellId = @"PhotoViewCellId";
     [self.collectionView registerClass:[HXPhotoViewCell class] forCellWithReuseIdentifier:PhotoViewCellId];
     [self.view addSubview:self.collectionView];
     if (!self.manager.singleSelected) {
-        self.collectionView.contentInset = UIEdgeInsetsMake(spacing + 64, 0, spacing + 50, 0);
+        self.collectionView.contentInset = UIEdgeInsetsMake(spacing, 0, spacing + 50, 0);
         HXPhotoBottomView *bottomView = [[HXPhotoBottomView alloc] initWithFrame:CGRectMake(0, heght - 50, width, 50)];
         bottomView.delegate = self;
         if (self.manager.selectedList.count > 0) {
@@ -363,7 +363,7 @@ static NSString *PhotoViewCellId = @"PhotoViewCellId";
         bottomView.originalBtn.selected = self.manager.isOriginal;
         if (self.manager.type == HXPhotoManagerSelectedTypeVideo) {
             bottomView.hidden = YES;
-            self.collectionView.contentInset = UIEdgeInsetsMake(spacing + 64, 0,  spacing, 0);
+            self.collectionView.contentInset = UIEdgeInsetsMake(spacing, 0,  spacing, 0);
             self.collectionView.scrollIndicatorInsets = self.collectionView.contentInset;
         }
         [self.view addSubview:bottomView];
@@ -380,7 +380,7 @@ static NSString *PhotoViewCellId = @"PhotoViewCellId";
             bottomView.originalBtn.frame = CGRectMake(originalBtnX, originalBtnY, originalBtnW+totalW  , originalBtnH);
         }
     }else {
-        self.collectionView.contentInset = UIEdgeInsetsMake(spacing + 64, 0, spacing, 0);
+        self.collectionView.contentInset = UIEdgeInsetsMake(spacing, 0, spacing, 0);
     }
     self.collectionView.scrollIndicatorInsets = self.collectionView.contentInset;
     
@@ -1350,7 +1350,7 @@ static NSString *PhotoViewCellId = @"PhotoViewCellId";
  */
 - (UIView *)albumsBgView {
     if (!_albumsBgView) {
-        _albumsBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, self.view.frame.size.height - 64)];
+        _albumsBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height )];
         _albumsBgView.hidden = YES;
         _albumsBgView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
         _albumsBgView.alpha = 0;
